@@ -44,10 +44,33 @@ while salir != 0:
 
             #realizamos el pedido a la pagina de la API
             r = requests.get(pedido)
-
+        
             #mostramos los resultados
             print("Contendio en JSON:\n", r.json())
 
+            # Creamos una conexión con la base de datos
+            con = sqlite3.connect('tickers.db')
+            # Creamos el cursor para interactuar con los datos
+            cursor = con.cursor()
+
+            cursor.execute( '''INSERT INTO datos (
+                    fechas,
+                    close,
+                    high,
+                    low,
+                    n,
+                    open,
+                    timestamp,
+                    vol,
+                    val_w                )
+                VALUES ('2022-04-32', '75.0875', '75.15', '73.7975', '1', '74.06', '1577941200000', '135647456','74.6099')''')
+
+            con.commit()
+            print(cursor.rowcount, "datos guardados correctamente.")
+            # Cerramos la conexión
+            con.close()
+
+            #manejo de menu
             print("\n ")
             input1 = input('Si quiere salir entre 0, de lo contrario ingrese 1:')
             salir = int(input1)
