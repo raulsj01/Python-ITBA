@@ -59,6 +59,7 @@ while salir != 0:
             print(value)
 
             print(f"Ticker: {ticker} - {value[0]['v']}")
+        
 
             # Creamos una conexión con la base de datos
             con = sqlite3.connect('tickers.db')
@@ -66,8 +67,8 @@ while salir != 0:
             cursor = con.cursor()
 
 
-
-            cursor.execute( '''INSERT INTO datos (
+            for k in range(int(json_obj["queryCount"])):
+                    cursor.execute( '''INSERT INTO datos (
                     nombre,
                     fechas,
                     close,
@@ -79,9 +80,9 @@ while salir != 0:
                     vol,
                     val_w                )
                     VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-                     (ticker, f_inicial, value[0]['c'], value[0]['h'], value[0]['l'], value[0]['n'], value[0]['o'], value[0]['t'], value[0]['v'],value[0]['vw']))
+                     (ticker, f_inicial, value[k]['c'], value[k]['h'], value[k]['l'], value[k]['n'], value[k]['o'], value[k]['t'], value[k]['v'],value[k]['vw']))
 
-            con.commit()
+                    con.commit()
             print(cursor.rowcount, "datos guardados correctamente.")
             # Cerramos la conexión
             con.close()
