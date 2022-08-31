@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
-import time
 import sqlite3
 import requests
+
+#para recorrer fechas
+from datetime import datetime
+from datetime import timedelta
 
 #valor para loop
 salir=2
@@ -59,14 +62,35 @@ while salir != 0:
             print(value)
 
             print(f"Ticker: {ticker} - {value[0]['v']}")
-        
+
+            #funcion para poner los dias habiles dentro del rango elegido por el usuario
+            def findWorkingDayAfter (startDate, daysToAdd):
+                #0 doming y 6 sabado, son salteados
+                workingDayCount = 0
+                a=0
+                while workingDayCount < daysToAdd:
+                    startDate += timedelta(days=1)
+                    weekday = int(startDate.strftime('%w'))
+                    if (weekday != 0 and weekday != 6):
+                        print(f"dia:{a} " + str(startDate))
+                        workingDayCount += 1
+                        dias_semana.insert(a, str(startDate))
+                        a+=1
+
+
+            dias_semana=[]
+            startDate = datetime.strptime(f_inicial, '%Y-%m-%d').date()
+            daysToAdd = int(json_obj["queryCount"])
+            findWorkingDayAfter(startDate, daysToAdd)
+
+            print(f"{dias_semana}")
 
             # Creamos una conexión con la base de datos
             con = sqlite3.connect('tickers.db')
             # Creamos el cursor para interactuar con los datos
             cursor = con.cursor()
 
-
+#itero hasta cubrir todos los diccionarios con queryCount parseado, que es la cantidad de datos que tengo
             for k in range(int(json_obj["queryCount"])):
                     cursor.execute( '''INSERT INTO datos (
                     nombre,
@@ -80,7 +104,7 @@ while salir != 0:
                     vol,
                     val_w                )
                     VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-                     (ticker, f_inicial, value[k]['c'], value[k]['h'], value[k]['l'], value[k]['n'], value[k]['o'], value[k]['t'], value[k]['v'],value[k]['vw']))
+                     (ticker, dias_semana[k], value[k]['c'], value[k]['h'], value[k]['l'], value[k]['n'], value[k]['o'], value[k]['t'], value[k]['v'],value[k]['vw']))
 
                     con.commit()
             print(cursor.rowcount, "datos guardados correctamente.")
@@ -93,7 +117,9 @@ while salir != 0:
             salir = int(input1)
 
     #inicio de la opcion 2
-    else:
+    elif option == "2":
+        fin=0
+        while fin == 0:
             print("""
  VISUALIZACIÓN DE DATOS:
       1- Resumen
@@ -124,15 +150,26 @@ while salir != 0:
 
                         # Cerramos la conexión
                         con.close()
-
+                        fin=1
                         print("\n ")
                         input1 = input('Si quiere salir entre 0, de lo contrario ingrese 1:')
                         salir = int(input1)
 
+
             #inicio de la opcion 2 - GRAFICO
-            else:
+            elif option1 == "2":
                     print("Gráfico de ticker - No lo hice aún")
 
                     print("\n ")
+                    fin=1
                     input1 = input('Si quiere salir ingrese 0, de lo contrario ingrese 1:')
                     salir = int(input1)
+
+
+           #si ingresó cualquier numero le pide que ingrese 1 o 2 en el menu
+            else:
+                print(f'        ERROR - Ingresó {option1}. Ingrese la opción 1 o 2')
+
+
+    else:
+        print(f'        ERROR - Ingresó {option}. Ingrese la opción 1 o 2')
