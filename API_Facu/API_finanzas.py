@@ -43,17 +43,32 @@ while salir != 0:
                     )
 
             #realizamos el pedido a la pagina de la API
-            r = requests.get(pedido)
-        
+            json_file = requests.get(pedido)
+
             #mostramos los resultados
-            print("Contendio en JSON:\n", r.json())
+            print("Contendio en JSON:\n", json_file.json())
+
+            print(json_file.text)
+
+            json_obj = json_file.json() # Parseo a Diccionario de Python
+
+            ticker = json_obj["ticker"]
+            value = json_obj["results"]
+
+            print(ticker)
+            print(value)
+
+            print(f"Ticker: {ticker} - {value[0]['v']}")
 
             # Creamos una conexión con la base de datos
             con = sqlite3.connect('tickers.db')
             # Creamos el cursor para interactuar con los datos
             cursor = con.cursor()
 
+
+
             cursor.execute( '''INSERT INTO datos (
+                    nombre,
                     fechas,
                     close,
                     high,
@@ -63,7 +78,8 @@ while salir != 0:
                     timestamp,
                     vol,
                     val_w                )
-                VALUES ('2022-04-32', '75.0875', '75.15', '73.7975', '1', '74.06', '1577941200000', '135647456','74.6099')''')
+                    VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                     (ticker, f_inicial, value[0]['c'], value[0]['h'], value[0]['l'], value[0]['n'], value[0]['o'], value[0]['t'], value[0]['v'],value[0]['vw']))
 
             con.commit()
             print(cursor.rowcount, "datos guardados correctamente.")
@@ -102,14 +118,14 @@ while salir != 0:
                         #imprimimos los datos pedidos
                         print("Los tickers guardados en la base de datos son:\n ")
                         for row in res:
-                            print("%s - %s <-> %s" % (row[0], row[1], row[2]))
+                            print(f'{row[0]} - {row[1]} <-> {row[2]}')
                             print(row[0],"-",row[1],"<->",row[2])
 
                         # Cerramos la conexión
                         con.close()
 
                         print("\n ")
-                        input1 = input('/n Si quiere salir entre 0, de lo contrario ingrese 1:')
+                        input1 = input('Si quiere salir entre 0, de lo contrario ingrese 1:')
                         salir = int(input1)
 
             #inicio de la opcion 2 - GRAFICO
