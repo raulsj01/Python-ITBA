@@ -5,7 +5,56 @@ import requests
 
 #para recorrer fechas
 from datetime import datetime
-from datetime import timedelta
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from pandas.tseries.offsets import CustomBusinessDay
+
+#importamos los feriados de pandas que nos interesan
+from pandas.tseries.holiday import nearest_workday, \
+    AbstractHolidayCalendar, Holiday, \
+    USMartinLutherKingJr, USPresidentsDay, GoodFriday, \
+    USMemorialDay, USLaborDay, USThanksgivingDay
+
+
+#creamos nuestra propia lista de feriados, los que toma la bolsa de USA
+class USTradingHolidaysCalendar(AbstractHolidayCalendar):
+    rules = [
+        Holiday(
+            'NewYearsDay',
+            month=1,
+            day=1,
+            observance=nearest_workday
+        ),
+        USMartinLutherKingJr,
+        USPresidentsDay,
+        GoodFriday,
+        USMemorialDay,
+        Holiday(
+            'Juneteenth National Independence Day',
+            month=6,
+            day=19,
+            start_date='2021-06-18',
+            observance=nearest_workday,
+        ),
+        Holiday(
+            'USIndependenceDay',
+            month=7,
+            day=4,
+            observance=nearest_workday
+        ),
+        USLaborDay,
+        USThanksgivingDay,
+        Holiday(
+            'Christmas',
+            month=12,
+            day=25,
+            observance=nearest_workday
+        ),
+    ]
+
+
+cal = USTradingHolidaysCalendar()
 
 #valor para loop
 salir=2
@@ -38,7 +87,7 @@ while salir != 0:
             print("Pidiendo datos ...\n ")
 
             #Creamos la API key con los valores propuestos
-            pedido= ("https://api.polygon.io/v2/aggs/ticker/{t}/range/1/day/{fi}/{ff}?adjusted=true&sort=asc&limit=120&apiKey=Hl28_xet0aqM7JlJ8rMwSoa7rVqhC_uo"
+            pedido= ("https://api.polygon.io/v2/aggs/ticker/{t}/range/1/day/{fi}/{ff}?adjusted=true&sort=asc&apiKey=Hl28_xet0aqM7JlJ8rMwSoa7rVqhC_uo"
             .format(t=ticker,
                     fi=f_inicial,
                     ff=f_final,
@@ -63,32 +112,36 @@ while salir != 0:
 
             print(f"Ticker: {ticker} - {value[0]['v']}")
 
-            #funcion para poner los dias habiles dentro del rango elegido por el usuario
-            def findWorkingDayAfter (startDate, daysToAdd):
-                #0 doming y 6 sabado, son salteados
-                workingDayCount = 0
-                a=0
-                while workingDayCount < daysToAdd:
-                    startDate += timedelta(days=1)
-                    weekday = int(startDate.strftime('%w'))
-                    if (weekday != 0 and weekday != 6):
-                        print(f"dia:{a} " + str(startDate))
-                        workingDayCount += 1
-                        dias_semana.insert(a, str(startDate))
-                        a+=1
+            #cargamos el calendario de feriados junto a los dias habiles
+            us_bd = CustomBusinessDay(calendar=cal)
 
+            f_pedidas = []
+            #con panda, recorro todos los dias desde mi dia inicial al final, filtrando por mi calendario
+            ser = pd.date_range(start=f_inicial, end=f_final, freq=us_bd)
+            #cargo mi dataframe a una lista
+            f_pedidas = ser.strftime('%Y-%m-%d').tolist()
+            print (f_pedidas)
+            print(f'Cantidad de fechas tomada ={len(f_pedidas)}, fechas API= {int(json_obj["queryCount"])}')
 
-            dias_semana=[]
             startDate = datetime.strptime(f_inicial, '%Y-%m-%d').date()
-            daysToAdd = int(json_obj["queryCount"])
-            findWorkingDayAfter(startDate, daysToAdd)
-
-            print(f"{dias_semana}")
+            endDate = datetime.strptime(f_final, '%Y-%m-%d').date()
 
             # Creamos una conexión con la base de datos
             con = sqlite3.connect('tickers.db')
             # Creamos el cursor para interactuar con los datos
             cursor = con.cursor()
+
+            #cargamos pedido realizado
+            cursor.execute( '''INSERT INTO ticker (
+            nombre,
+            f_inicio,
+            f_fin
+                )
+            VALUES ( ?, ?, ?)''',
+             (ticker, startDate, endDate))
+
+            con.commit()
+            print(cursor.rowcount, "datos guardados correctamente en ticker.")
 
 #itero hasta cubrir todos los diccionarios con queryCount parseado, que es la cantidad de datos que tengo
             for k in range(int(json_obj["queryCount"])):
@@ -104,10 +157,10 @@ while salir != 0:
                     vol,
                     val_w                )
                     VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-                     (ticker, dias_semana[k], value[k]['c'], value[k]['h'], value[k]['l'], value[k]['n'], value[k]['o'], value[k]['t'], value[k]['v'],value[k]['vw']))
+                     (ticker, str(f_pedidas[k]), value[k]['c'], value[k]['h'], value[k]['l'], value[k]['n'], value[k]['o'], value[k]['t'], value[k]['v'],value[k]['vw']))
 
                     con.commit()
-            print(cursor.rowcount, "datos guardados correctamente.")
+            print(cursor.rowcount, "datos guardados correctamente en datos.")
             # Cerramos la conexión
             con.close()
 
@@ -119,6 +172,7 @@ while salir != 0:
     #inicio de la opcion 2
     elif option == "2":
         fin=0
+        #mantengo el bucle de la opción 2
         while fin == 0:
             print("""
  VISUALIZACIÓN DE DATOS:
@@ -146,7 +200,6 @@ while salir != 0:
                         print("Los tickers guardados en la base de datos son:\n ")
                         for row in res:
                             print(f'{row[0]} - {row[1]} <-> {row[2]}')
-                            print(row[0],"-",row[1],"<->",row[2])
 
                         # Cerramos la conexión
                         con.close()
@@ -160,10 +213,51 @@ while salir != 0:
             elif option1 == "2":
                     print("Gráfico de ticker - No lo hice aún")
 
-                    print("\n ")
-                    fin=1
-                    input1 = input('Si quiere salir ingrese 0, de lo contrario ingrese 1:')
-                    salir = int(input1)
+                    tickerAGraficar = input('¿Que Ticker desea graficar?:')
+
+                    # Creamos una conexión con la base de datos
+                    con = sqlite3.connect('tickers.db')
+                    # Creamos el cursor para interactuar con los datos
+                    cursor = con.cursor()
+
+                    # Pedimos parametros al SQL
+                    res = cursor.execute(f'''
+                        SELECT nombre, fechas, vol, val_w, high, low
+                        FROM datos
+                        WHERE nombre = ?
+                        ORDER BY nombre DESC
+                        ''',(tickerAGraficar,))
+
+                    # Construimos un Pandas Data Frame
+                    records = pd.DataFrame(cursor.fetchall())
+                    records.columns=['Ticker', 'Date', 'Vol', 'Val_W', 'High', 'Low']
+                    records["Date"] = pd.to_datetime(records["Date"])
+                    records.sort_values(by='Date', ascending=True)
+
+                    print(records)
+
+                    # Cerramos la conexión
+                    con.close()
+
+                    # Graficamos los datos
+                    fig, ax1 = plt.subplots()
+                    records.plot(ax=ax1, x='Date', y='Val_W', label='Val_W', color='blue')
+                    records.plot(ax=ax1, x='Date', y='High', label='High', color='red')
+                    records.plot(ax=ax1, x='Date', y='Low', label='Low', color='green')
+                    plt.title('Stock Evolution')
+                    plt.xticks(rotation=45)
+                    plt.xlabel('Dates')
+                    plt.ylabel('Price')
+                    plt.legend()
+                    plt.show(block=False)
+
+                    records.plot(x='Date', y='Vol', label='Val_W', color='blue')
+                    plt.title('Operated Volume')
+                    plt.xticks(rotation=45)
+                    plt.xlabel('Dates')
+                    plt.ylabel('Value')
+                    plt.legend()
+                    plt.show()
 
 
            #si ingresó cualquier numero le pide que ingrese 1 o 2 en el menu
