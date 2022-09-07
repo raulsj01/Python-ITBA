@@ -80,9 +80,25 @@ while salir != 0:
             print("Ingrese ticker a pedir y luego apriete <enter>.\n ")
             ticker = input('Ticker:')
             print("\n ")
-            f_inicial = input('Ingrese fecha de inicio [AAAA-MM-DD]:\n ')
+            #verificamos que ingresen una fecha correcta
+            while True:
+                try:
+                    f_inicial = input('Ingrese fecha de inicio [AAAA-MM-DD]:\n ')
+                    startDate = datetime.strptime(f_inicial, '%Y-%m-%d').date()
+                    break
+                except ValueError:
+                    print("Fecha inválida - Ingresa una fecha válida \n")
             print("\n ")
-            f_final = input('Ingrese fecha de fin [AAAA-MM-DD]:\n ')
+            while True:
+                try:
+                    f_final = input('Ingrese fecha de fin [AAAA-MM-DD]:\n ')
+                    endDate = datetime.strptime(f_final, '%Y-%m-%d').date()
+                    if startDate > endDate:
+                        print(f'Ingrese una fecha mayor a la de inicio: {f_inicial}\n')
+                    else:
+                        break
+                except ValueError:
+                    print("Fecha inválida - Ingresa una fecha válida\n")
             print("\n ")
             print("Pidiendo datos ...\n ")
 
@@ -123,8 +139,6 @@ while salir != 0:
             print (f_pedidas)
             print(f'Cantidad de fechas tomada ={len(f_pedidas)}, fechas API= {int(json_obj["queryCount"])}')
 
-            startDate = datetime.strptime(f_inicial, '%Y-%m-%d').date()
-            endDate = datetime.strptime(f_final, '%Y-%m-%d').date()
 
             # Creamos una conexión con la base de datos
             con = sqlite3.connect('tickers.db')
