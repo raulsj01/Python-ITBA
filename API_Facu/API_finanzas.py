@@ -8,53 +8,6 @@ from datetime import datetime
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from pandas.tseries.offsets import CustomBusinessDay
-
-#importamos los feriados de pandas que nos interesan
-from pandas.tseries.holiday import nearest_workday, \
-    AbstractHolidayCalendar, Holiday, \
-    USMartinLutherKingJr, USPresidentsDay, GoodFriday, \
-    USMemorialDay, USLaborDay, USThanksgivingDay
-
-
-#creamos nuestra propia lista de feriados, los que toma la bolsa de USA
-class USTradingHolidaysCalendar(AbstractHolidayCalendar):
-    rules = [
-        Holiday(
-            'NewYearsDay',
-            month=1,
-            day=1,
-            observance=nearest_workday
-        ),
-        USMartinLutherKingJr,
-        USPresidentsDay,
-        GoodFriday,
-        USMemorialDay,
-        Holiday(
-            'Juneteenth National Independence Day',
-            month=6,
-            day=19,
-            start_date='2021-06-18',
-            observance=nearest_workday,
-        ),
-        Holiday(
-            'USIndependenceDay',
-            month=7,
-            day=4,
-            observance=nearest_workday
-        ),
-        USLaborDay,
-        USThanksgivingDay,
-        Holiday(
-            'Christmas',
-            month=12,
-            day=25,
-            observance=nearest_workday
-        ),
-    ]
-
-
-cal = USTradingHolidaysCalendar()
 
 #valor para loop
 salir=2
@@ -84,6 +37,7 @@ while salir != 0:
             while True:
                 try:
                     f_inicial = input('Ingrese fecha de inicio [AAAA-MM-DD]:\n ')
+                    #llevamos a la fecha inicial a formato datetime
                     startDate = datetime.strptime(f_inicial, '%Y-%m-%d').date()
                     break
                 except ValueError:
@@ -102,6 +56,52 @@ while salir != 0:
             print("\n ")
             print("Pidiendo datos ...\n ")
 
+
+
+            con = sqlite3.connect('tickers.db')
+            # Creamos el cursor para interactuar con los datos
+            cursor = con.cursor()
+
+
+
+
+            # Pedimos parametros al SQL para ver qué fechas tenemos en la DB del ticker pedido
+            res = cursor.execute(f'''
+                SELECT nombre, fechas
+                FROM datos
+                WHERE nombre = ?
+                ORDER BY nombre, fechas
+                ''',(ticker,))
+
+            records = cursor.fetchall()
+
+            con.close()
+
+            #usamos datos_cargados para cargar en una lista las fechas desde la fecha inical pedida hasta la final y luego compararla con las fechas que nos da la API
+            datos_cargados=[]
+            #f es para conocer el el punto de lista donde la fecha pedida es igual a la fecha en la base de datos
+            f=-1
+            f_loop = f_inicial
+            for word in records:
+                print(f'{word[1]}')
+                f+=1
+                if f_loop == word[1]:
+                      print("Encontramos una fecha igual!!!")
+                      datos_cargados = records[f:]
+                      break
+                elif f_loop < word[1]:
+                    print("MENOR")
+                    datos_cargados = records[f:]
+                    break
+
+            #uso datos cargados 2 para quedarme solo con la parte de la fecha, sin el nombre del ticker
+            datos_cargados2=[]
+            for data in datos_cargados:
+                datos_cargados2.append(data[1])
+
+            print(f'ESTAS SON LAS FECHAS DE DB: {datos_cargados2}\n')
+
+
             #Creamos la API key con los valores propuestos
             pedido= ("https://api.polygon.io/v2/aggs/ticker/{t}/range/1/day/{fi}/{ff}?adjusted=true&sort=asc&apiKey=Hl28_xet0aqM7JlJ8rMwSoa7rVqhC_uo"
             .format(t=ticker,
@@ -114,38 +114,32 @@ while salir != 0:
             json_file = requests.get(pedido)
 
             #mostramos los resultados
-            print("Contendio en JSON:\n", json_file.json())
+            # print("Contendio en JSON:\n", json_file.json())
 
             print(json_file.text)
 
             json_obj = json_file.json() # Parseo a Diccionario de Python
 
+            #cargo a una lista el nombre del ticker y los datos de la API
             ticker = json_obj["ticker"]
             value = json_obj["results"]
 
-            print(ticker)
-            print(value)
+            #tomo la parte del timestamp de los resultados de la API, lo tranformo en tipo fecha datetime (esta en milisegundos por eso lo divido por 1000) y lo guardo en la lista "fechas" para compararlo con "datos_cargados2" luego
+            #no comparo el timestamp directamente porque tiene la parte de la hora también y es complejo coincidir en hora. Es mas facil comparar solo dias.
+            fechas = []
+            for k in range(int(json_obj["queryCount"])):
+                fechas_normal = str(datetime.fromtimestamp(value[k]['t']//1000.0).strftime('%Y-%m-%d'))
+                fechas.append(fechas_normal)
 
-            print(f"Ticker: {ticker} - {value[0]['v']}")
-
-            #cargamos el calendario de feriados junto a los dias habiles
-            us_bd = CustomBusinessDay(calendar=cal)
-
-            f_pedidas = []
-            #con panda, recorro todos los dias desde mi dia inicial al final, filtrando por mi calendario
-            ser = pd.date_range(start=f_inicial, end=f_final, freq=us_bd)
-            #cargo mi dataframe a una lista
-            f_pedidas = ser.strftime('%Y-%m-%d').tolist()
-            print (f_pedidas)
-            print(f'Cantidad de fechas tomada ={len(f_pedidas)}, fechas API= {int(json_obj["queryCount"])}')
+            print(f'ESTAS SON LAS FECHAS de API : {fechas}\n')
 
 
             # Creamos una conexión con la base de datos
             con = sqlite3.connect('tickers.db')
-            # Creamos el cursor para interactuar con los datos
+            # Creamos el cursor para interactuar con los datostemp
             cursor = con.cursor()
 
-            #cargamos pedido realizado
+            #cargamos pedido realizado en la tabla ticker, que luego se usa para visualizar los pedidos datos_cargados
             cursor.execute( '''INSERT INTO ticker (
             nombre,
             f_inicio,
@@ -157,23 +151,36 @@ while salir != 0:
             con.commit()
             print(cursor.rowcount, "datos guardados correctamente en ticker.")
 
-#itero hasta cubrir todos los diccionarios con queryCount parseado, que es la cantidad de datos que tengo
-            for k in range(int(json_obj["queryCount"])):
-                    cursor.execute( '''INSERT INTO datos (
-                    nombre,
-                    fechas,
-                    close,
-                    high,
-                    low,
-                    n,
-                    open,
-                    timestamp,
-                    vol,
-                    val_w                )
-                    VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-                     (ticker, str(f_pedidas[k]), value[k]['c'], value[k]['h'], value[k]['l'], value[k]['n'], value[k]['o'], value[k]['t'], value[k]['v'],value[k]['vw']))
+            #comparo las fechas de DB "datos_cargados2" Con la de API "fechas" y me quedo con las fechas que no existen en datos_cargados2.
+            #Las guardo en temp3 que seria mi lista de fechas a cargar en la base de datos considerando lo guardado anteriormente, en otra sesión
+            temp3 = []
+            for element in fechas:
+                if element not in datos_cargados2:
+                     temp3.append(element)
 
-                    con.commit()
+            print(f'DATOS a cargar:{temp3}\n')
+            print(f'DATOS cargados:')
+
+            #itero hasta cubrir todos los datos de la API con queryCount parseado, que es la cantidad de datos que me brinda la API. Antes de cargar en la DB comparo la fecha date1 de la API, si está en temp3, cargo la fecha, sino, no.
+            for k in range(int(json_obj["queryCount"])):
+                date1 = str(datetime.fromtimestamp(value[k]['t']//1000.0).strftime('%Y-%m-%d'))
+                if date1 in temp3:
+                        print(date1)
+                        cursor.execute( '''INSERT INTO datos (
+                        nombre,
+                        fechas,
+                        close,
+                        high,
+                        low,
+                        n,
+                        open,
+                        timestamp,
+                        vol,
+                        val_w                )
+                        VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                         (ticker, date1 , value[k]['c'], value[k]['h'], value[k]['l'], value[k]['n'], value[k]['o'], value[k]['t'], value[k]['v'],value[k]['vw']))
+
+            con.commit()
             print(cursor.rowcount, "datos guardados correctamente en datos.")
             # Cerramos la conexión
             con.close()
