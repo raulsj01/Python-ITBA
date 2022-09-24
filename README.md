@@ -25,8 +25,11 @@ This is a simple Python/Flask application intended to provide a working example 
 
 
 ¿Qué paquetes debo instalar?
--------
 
-1. Install the dependencies with `make bootstrap`
-2. Run the command `make test`
-3. If you delete the fixtures, or decide to add some of your own, you’ll have to re-generate them, and the way this is done is by running the app, getting an auth_token from the main page of the app. Paste that token in place of the `test_auth_token` at the top of the `test_endpoints.py` file, then run the tests.
+Instalar los siguientes paquetes
+pip install requests
+pip install pandas
+pip install pandas_ta
+pip install matplotlib
+
+
