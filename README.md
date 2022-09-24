@@ -9,29 +9,68 @@ https://developer.uber.com/
 ¿Cuál es el objetivo del programa?
 -------------
 
-This is a simple Python/Flask application intended to provide a working example of Uber's external API. The goal of these endpoints is to be simple, well-documented and to provide a base for developers to develop other applications off of.
-
-
-¿Cómo ejecutarlo?
+El objetivo del programa es poder obtener datos de una base de datos de finanzas, mantenerlos en una base de datos propia y graficarlos temporalmente. La aplicación grafica los valores diarios junto con el volumen, las bandas Bollinger superior e inferior.
+ 
+¿Cómo correr el programa?
 ---------------
 
-1. Navigate over to https://developer.uber.com/, and sign up for an Uber developer account.
-2. Register a new Uber application and make your Redirect URI `http://localhost:7000/submit` - ensure that both the `profile` and `history` OAuth scopes are checked.
-3. Fill in the relevant information in the `config.json` file in the root folder and add your client id and secret as the environment variables `UBER_CLIENT_ID` and `UBER_CLIENT_SECRET`.
-4. Run `export UBER_CLIENT_ID="`*{your client id}*`"&&export UBER_CLIENT_SECRET="`*{your client secret}*`"`
-5. Run `pip install -r requirements.txt` to install dependencies
-6. Run `python app.py`
-7. Navigate to http://localhost:7000 in your browser
+1. Descargar `API_finanzas.py`, `tickers.db` y `requirements.txt` en una misma carpeta de su computadora.
+2. Abrir el “Símbolo del sistema” y tipear `pip install -r requirements.txt` para instalar los paquetes necesarios.
+3. Ejecutar desde la carpeta donde descargó los archivos, `python API_finanzas.py`
 
 
-¿Qué paquetes debo instalar?
+¿Cómo usarlo?
+---------------
 
-5. Run `pip install -r requirements.txt` to  `´install´` dependencies
+1.Al iniciarlizar, se verá lo siguiente, en donde se tendrá que elegir una opción, según lo que se quiera conocer:
 
-Instalar los siguientes paquetes
-pip install requests
-pip install pandas
-pip install pandas_ta
-pip install matplotlib
+```
+ ******************************************************
+        Te damos la Bienvenida. API de Finanzas
+                Certificación Python ITBA
+    ******************************************************
+    MENU PRINCIPAL:
+    1- Actualización de datos
+    2- Visualización de datos
+
+¿Cuál opción desea elegir?:
+```
+
+Si se ingresa `1`, se va a ingresar al menú de Actualización de datos.
+Debe ingresar el nombre del Ticker a cargar en la base de datos junto al rango de fechas requerido, utilizando el formato `año-mes-día` . Si alguna fecha requerida ya se encuentra cargada en la base de datos, no la cargará nuevamente.
+
+Ejemplo:
+```
+¿Cuál opción desea elegir?:1
+
+
+ACTUALIZACIÓN DE DATOS.
+
+
+Ingrese ticker a pedir y luego apriete <enter>.
+
+Ticker:AAPL
+
+
+Ingrese fecha de inicio [AAAA-MM-DD]:
+ 2021-02-03
+
+
+Ingrese fecha de fin [AAAA-MM-DD]:
+ 2022-02-03
+
+```
+
+Desarrollo
+--------------- 
+
+Para desarrollar la aplicación se utilizó sqlite3 y se crea dos base de datos con la siguiente estructura: Tabla de datos (Nombre del ticker, fecha, volumen operado, valor medio, valor de apertura, valor de cierre, mayor valor, menor valor y timestamp), Tickers (Nombre del ticker, fecha de inicio de los datos, fecha de fin de los datos).
+
+En la base de tabla de datos se guarda la información recibida de la API de finanzas y en la base de Tickers los requests recibidos del usuario.
+
+
+Estructura del programa
+---------------
+
 
 
