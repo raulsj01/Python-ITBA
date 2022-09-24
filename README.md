@@ -1,10 +1,4 @@
-# Programa Final, Certificación Profesional Python
-
-# ¿Cuál es el objetivo del programa?
- Este es un programa que 
-le Python/Flask application intended to provide a working example of Uber's external API. The goal of these endpoints is to be simple, well-docu
-
-Example Uber app for developers
+Programa Final, Certificación Profesional Python
 ==============================
 
 [![TravisCI](https://travis-ci.org/uber/Python-Sample-Application.svg?branch=master)](https://travis-ci.org/uber/Python-Sample-Application)
@@ -12,13 +6,13 @@ Example Uber app for developers
 
 https://developer.uber.com/
 
-What Is This?
+¿Cuál es el objetivo del programa?
 -------------
 
 This is a simple Python/Flask application intended to provide a working example of Uber's external API. The goal of these endpoints is to be simple, well-documented and to provide a base for developers to develop other applications off of.
 
 
-How To Use This
+¿Cómo ejecutarlo?
 ---------------
 
 1. Navigate over to https://developer.uber.com/, and sign up for an Uber developer account.
@@ -30,7 +24,7 @@ How To Use This
 7. Navigate to http://localhost:7000 in your browser
 
 
-Testing
+¿Qué paquetes debo instalar?
 -------
 
 1. Install the dependencies with `make bootstrap`
