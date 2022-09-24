@@ -7,6 +7,7 @@ import requests
 from datetime import datetime
 
 import pandas as pd
+import pandas_ta as ta
 import matplotlib.pyplot as plt
 
 #valor para loop
@@ -22,6 +23,7 @@ while salir != 0:
     MENU PRINCIPAL:
     1- Actualización de datos
     2- Visualización de datos
+    3- Salir
     """)
 
     option = input('¿Cuál opción desea elegir?:')
@@ -199,6 +201,7 @@ while salir != 0:
  VISUALIZACIÓN DE DATOS:
       1- Resumen
       2- Gráfico de ticker
+      3-  Volver al MENÚ Principal
             """)
 
             option1 = input('¿Cuál opción desea elegir?:')
@@ -224,67 +227,84 @@ while salir != 0:
 
                         # Cerramos la conexión
                         con.close()
-                        fin=1
-                        print("\n ")
-                        input1 = input('Si quiere salir entre 0, de lo contrario ingrese 1:')
-                        salir = int(input1)
+
 
 
             #inicio de la opcion 2 - GRAFICO
             elif option1 == "2":
-                    print("Gráfico de ticker - No lo hice aún")
+                    print("Gráfico de ticker")
 
-                    tickerAGraficar = input('¿Que Ticker desea graficar?:')
+                    while True:
 
-                    # Creamos una conexión con la base de datos
-                    con = sqlite3.connect('tickers.db')
-                    # Creamos el cursor para interactuar con los datos
-                    cursor = con.cursor()
+                        tickerAGraficar = input('¿Que Ticker desea graficar?:')
 
-                    # Pedimos parametros al SQL
-                    res = cursor.execute(f'''
-                        SELECT nombre, fechas, vol, val_w, high, low
-                        FROM datos
-                        WHERE nombre = ?
-                        ORDER BY nombre DESC
-                        ''',(tickerAGraficar,))
+                        # Creamos una conexión con la base de datos
+                        con = sqlite3.connect('tickers.db')
+                        # Creamos el cursor para interactuar con los datos
+                        cursor = con.cursor()
 
-                    # Construimos un Pandas Data Frame
-                    records = pd.DataFrame(cursor.fetchall())
-                    records.columns=['Ticker', 'Date', 'Vol', 'Val_W', 'High', 'Low']
-                    records["Date"] = pd.to_datetime(records["Date"])
-                    records.sort_values(by='Date', ascending=True)
+                        # Pedimos parametros al SQL
+                        try:
+                            res = cursor.execute(f'''
+                            SELECT nombre, fechas, vol, val_w, high, low
+                            FROM datos
+                            WHERE nombre = ?
+                            ORDER BY nombre DESC
+                            ''',(tickerAGraficar,))
 
-                    print(records)
 
-                    # Cerramos la conexión
-                    con.close()
+                            # Construimos un Pandas Data Frame
+                            records = pd.DataFrame(cursor.fetchall())
+                            records.columns = ['Ticker', 'Date', 'Vol', 'Val_W', 'High', 'Low']
+                            records["Date"] = pd.to_datetime(records["Date"])
+                            records.sort_values(by='Date', ascending=True)
+                            indicator_bb = ta.bbands(close=records["Val_W"], window=20, window_dev=2)
+                            print(indicator_bb)
+                            records = pd.concat([records, indicator_bb], ignore_index=True, axis=1)
+                            records.columns = ['Ticker', 'Date', 'Vol', 'Val_W', 'High', 'Low', 'BBL_5_2.0', 'BBM_5_2.0', 'BBU_5_2.0', 'BBB_5_2.0', 'BBP_5_2.0']
+                            print(records)
 
-                    # Graficamos los datos
-                    fig, ax1 = plt.subplots()
-                    records.plot(ax=ax1, x='Date', y='Val_W', label='Val_W', color='blue')
-                    records.plot(ax=ax1, x='Date', y='High', label='High', color='red')
-                    records.plot(ax=ax1, x='Date', y='Low', label='Low', color='green')
-                    plt.title('Stock Evolution')
-                    plt.xticks(rotation=45)
-                    plt.xlabel('Dates')
-                    plt.ylabel('Price')
-                    plt.legend()
-                    plt.show(block=False)
+                            # Cerramos la conexión
+                            con.close()
 
-                    records.plot(x='Date', y='Vol', label='Val_W', color='blue')
-                    plt.title('Operated Volume')
-                    plt.xticks(rotation=45)
-                    plt.xlabel('Dates')
-                    plt.ylabel('Value')
-                    plt.legend()
-                    plt.show()
+                            # Graficamos los datos
+                            # fig, (ax1, ax2) = plt.subplots(2)
+                            fig = plt.figure(constrained_layout=True)
+                            ax = fig.add_gridspec(3, 1)
+                            ax1 = fig.add_subplot(ax[0:2, 0])
+                            ax2 = fig.add_subplot(ax[2, 0])
+                            records.plot(ax=ax1, x='Date', y='Val_W', label='Val_W', color='blue')
+                            records.plot(ax=ax1, x='Date', y='BBL_5_2.0', label='BOLU', color='red')
+                            records.plot(ax=ax1, x='Date', y='BBM_5_2.0', label='BOLD', color='green')
+                            plt.title('Stock Evolution')
+                            plt.xticks(rotation=45)
+                            plt.xlabel('Dates')
+                            plt.ylabel('Price')
+                            plt.show(block=False)
 
+                            records.plot(ax=ax2, x='Date', y='Vol', label='Vol', color='blue')
+                            records.plot
+                            plt.title('Operated Volume')
+                            plt.xticks(rotation=45)
+                            plt.xlabel('Dates')
+                            plt.ylabel('Value')
+                            plt.show()
+
+                            break
+
+
+                        except ValueError:
+                            print('El Ticker no existe en la base de datos. Elija otro\n')
+
+            #si ingreso 3, vuelvo al menu principal
+            elif option1 == "3":
+                fin=1
 
            #si ingresó cualquier numero le pide que ingrese 1 o 2 en el menu
             else:
-                print(f'        ERROR - Ingresó {option1}. Ingrese la opción 1 o 2')
+                print(f'        ERROR - Ingresó {option1}. Ingrese la opción 1, 2 o 3')
 
-
+    elif option == "3":
+        break
     else:
         print(f'        ERROR - Ingresó {option}. Ingrese la opción 1 o 2')
