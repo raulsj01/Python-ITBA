@@ -1,21 +1,20 @@
-Programa Final, Certificación Profesional Python
-==============================
+# Programa Final, Certificación Profesional Python
 
-¿Cuál es el objetivo del programa?
--------------
 
-El objetivo del programa es poder obtener datos de una base de datos de finanzas, mantenerlos en una base de datos propia y graficarlos temporalmente. La aplicación grafica los valores diarios junto con el volumen, las bandas Bollinger superior e inferior.
+##  Programa
+
+
+El objetivo del programa es poder obtener datos de una base de datos de finanzas, mantenerlos en una base de datos propia y graficarlos temporalmente. La aplicación gráfica los valores diarios junto con el volumen, las bandas Bollinger superior e inferior.
  
-¿Cómo correr el programa?
----------------
+### ¿Cómo correr el programa?
+
 
 1. Descargar `API_finanzas.py`, `tickers.db` y `requirements.txt` en una misma carpeta de su computadora.
 2. Abrir el *Símbolo del sistema* y tipear `pip install -r requirements.txt` para instalar los paquetes necesarios.
 3. Ejecutar desde la carpeta donde descargó los archivos, `python API_finanzas.py`
 
 
-¿Cómo usarlo?
----------------
+### ¿Cómo usarlo?
 1. Al inicializar, se tendrá que elegir una opción, según lo que se quiera hacer:
      - 1- Actualización de datos
      - 2- Visualización de datos
@@ -61,7 +60,7 @@ Si se ingresa `2`, se va a ingresar al menú de **Visualización de datos**:
 
  Se tendrá que elegir una opción, según lo que se quiera ver:
   - 1- Resumen: donde verá los Tickers, junto a su rango de fechas pedido por el usuario.
-  - 2- Gráfico de ticker: podrá visualizar la grafica de los valores diarios del Ticker junto con el volumen y las bandas Bollinger superior e inferior.
+  - 2- Gráfico de ticker: podrá visualizar la gráfica de los valores diarios del Ticker junto con el volumen y las bandas Bollinger superior e inferior.
 
 ```
 ¿Cuál opción desea elegir?:2
@@ -81,15 +80,15 @@ Al finalizar cada opción, se va a poder regresar al menú para elegir una nueva
 Si quiere salir ingrese 0, de lo contrario ingrese 1:
 ```
 
-Desarrollo
---------------- 
+## Desarrollo
+ 
+La aplicación se realizó en *[Python 3](https://www.python.org/downloads/)*.
 
-Para desarrollar la aplicación se utilizó sqlite3 y se crea dos base de datos con la siguiente estructura: Tabla de datos (Nombre del ticker, fecha, volumen operado, valor medio, valor de apertura, valor de cierre, mayor valor, menor valor y timestamp), Tickers (Nombre del ticker, fecha de inicio de los datos, fecha de fin de los datos).
+Para el desarrollo y prueba de la base de datos, se utilizó *[Sqlite3](https://www.sqlite.org/index.html)*, en donde se crea dos tablas con la siguiente estructura:
+-  Datos *(Nombre del ticker, fecha, volumen operado, valor medio, valor de apertura, valor de cierre, mayor valor, menor valor y timestamp)*.
+- Tickers *(Nombre del ticker, fecha de inicio de los datos, fecha de fin de los datos)*.
 
-En la base de tabla de datos se guarda la información recibida de la API de finanzas y en la base de Tickers los requests recibidos del usuario.
-
-
-Estructura del programa
----------------
+En la tabla ***datos*** se guarda la información recibida de la API de finanzas y en la tabla ***tickers*** los requests recibidos del usuario.
 
 
+### Estructura del programa
