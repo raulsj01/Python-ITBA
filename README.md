@@ -1,11 +1,6 @@
 Programa Final, Certificación Profesional Python
 ==============================
 
-[![TravisCI](https://travis-ci.org/uber/Python-Sample-Application.svg?branch=master)](https://travis-ci.org/uber/Python-Sample-Application)
-[![Coverage Status](https://coveralls.io/repos/uber/Python-Sample-Application/badge.png)](https://coveralls.io/r/uber/Python-Sample-Application)
-
-https://developer.uber.com/
-
 ¿Cuál es el objetivo del programa?
 -------------
 
@@ -15,7 +10,7 @@ El objetivo del programa es poder obtener datos de una base de datos de finanzas
 ---------------
 
 1. Descargar `API_finanzas.py`, `tickers.db` y `requirements.txt` en una misma carpeta de su computadora.
-2. Abrir el “Símbolo del sistema” y tipear `pip install -r requirements.txt` para instalar los paquetes necesarios.
+2. Abrir el *Símbolo del sistema* y tipear `pip install -r requirements.txt` para instalar los paquetes necesarios.
 3. Ejecutar desde la carpeta donde descargó los archivos, `python API_finanzas.py`
 
 
@@ -24,7 +19,6 @@ El objetivo del programa es poder obtener datos de una base de datos de finanzas
 1. Al inicializar, se tendrá que elegir una opción, según lo que se quiera hacer:
      - 1- Actualización de datos
      - 2- Visualización de datos
-
 
 ```
  ******************************************************
@@ -38,8 +32,8 @@ El objetivo del programa es poder obtener datos de una base de datos de finanzas
 ¿Cuál opción desea elegir?:
 ```
 
-Si se ingresa `1`, se va a ingresar al menú de Actualización de datos.
-Debe ingresar el nombre del Ticker a cargar en la base de datos junto al rango de fechas requerido, utilizando el formato `año-mes-día` . Si alguna fecha requerida ya se encuentra cargada en la base de datos, no la cargará nuevamente.
+Si se ingresa `1`, se va a ingresar al menú de **Actualización de datos**.
+Debe ingresar el nombre del **Ticker** a cargar en la base de datos junto al rango de **fechas** requerido, utilizando el formato `año-mes-día` . Si alguna fecha requerida ya se encuentra cargada en la base de datos, no la cargará nuevamente.
 
 Ejemplo:
 ```
@@ -63,6 +57,30 @@ Ingrese fecha de fin [AAAA-MM-DD]:
 
 ```
 
+Si se ingresa `2`, se va a ingresar al menú de **Visualización de datos**:
+
+ Se tendrá que elegir una opción, según lo que se quiera ver:
+  - 1- Resumen: donde verá los Tickers, junto a su rango de fechas pedido por el usuario.
+  - 2- Gráfico de ticker: podrá visualizar la grafica de los valores diarios del Ticker junto con el volumen y las bandas Bollinger superior e inferior.
+
+```
+¿Cuál opción desea elegir?:2
+
+
+
+ VISUALIZACIÓN DE DATOS:
+      1- Resumen
+      2- Gráfico de ticker
+
+¿Cuál opción desea elegir?:
+```
+
+Al finalizar cada opción, se va a poder regresar al menú para elegir una nueva opción, ingresando `1`. Se verá lo siguiente:
+
+```
+Si quiere salir ingrese 0, de lo contrario ingrese 1:
+```
+
 Desarrollo
 --------------- 
 
@@ -73,6 +91,5 @@ En la base de tabla de datos se guarda la información recibida de la API de fin
 
 Estructura del programa
 ---------------
-
 
 
