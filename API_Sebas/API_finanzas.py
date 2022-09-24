@@ -233,7 +233,7 @@ while salir != 0:
 
             #inicio de la opcion 2 - GRAFICO
             elif option1 == "2":
-                    print("Gráfico de ticker - No lo hice aún")
+                    print("Gráfico de ticker")
 
                     tickerAGraficar = input('¿Que Ticker desea graficar?:')
 
@@ -256,9 +256,9 @@ while salir != 0:
                     records["Date"] = pd.to_datetime(records["Date"])
                     records.sort_values(by='Date', ascending=True)
                     indicator_bb = ta.bbands(close=records["Val_W"], window=20, window_dev=2)
-                    print(records)
                     print(indicator_bb)
                     records = pd.concat([records, indicator_bb], ignore_index=True, axis=1)
+                    records.columns = ['Ticker', 'Date', 'Vol', 'Val_W', 'High', 'Low', 'BBL_5_2.0', 'BBM_5_2.0', 'BBU_5_2.0', 'BBB_5_2.0', 'BBP_5_2.0']
                     print(records)
 
                     # Cerramos la conexión
@@ -280,10 +280,10 @@ while salir != 0:
                     plt.show(block=False)
 
                     records.plot(ax=ax2, x='Date', y='Vol', label='Vol', color='blue')
+                    records.plot
                     plt.title('Operated Volume')
                     plt.xticks(rotation=45)
                     plt.xlabel('Dates')
-                    #plt.tick_params(labelbottom=False)
                     plt.ylabel('Value')
                     plt.show()
 
