@@ -21,8 +21,10 @@ El objetivo del programa es poder obtener datos de una base de datos de finanzas
 
 ¿Cómo usarlo?
 ---------------
+1. Al inicializar, se tendrá que elegir una opción, según lo que se quiera hacer:
+     - 1- Actualización de datos
+     - 2- Visualización de datos
 
-1.Al iniciarlizar, se verá lo siguiente, en donde se tendrá que elegir una opción, según lo que se quiera conocer:
 
 ```
  ******************************************************
