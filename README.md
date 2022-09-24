@@ -26,6 +26,8 @@ This is a simple Python/Flask application intended to provide a working example 
 
 ¿Qué paquetes debo instalar?
 
+5. Run `pip install -r requirements.txt` to install dependencies
+
 Instalar los siguientes paquetes
 pip install requests
 pip install pandas
