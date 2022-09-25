@@ -4,7 +4,7 @@
 ##  Programa
 
 
-El objetivo del programa es poder obtener datos de una base de datos de finanzas, mantenerlos en una base de datos propia y graficarlos temporalmente. La aplicación gráfica los valores diarios junto con el volumen, las bandas Bollinger superior e inferior.
+El objetivo del programa es poder obtener datos de una base de datos de finanzas, mantenerlos en una base de datos propia y graficarlos temporalmente. La aplicación grafica los valores diarios junto con el volumen, las bandas Bollinger superior e inferior.
  
 ### ¿Cómo correr el programa?
 
