@@ -18,6 +18,7 @@ El objetivo del programa es poder obtener datos de una base de datos de finanzas
 1. Al inicializar, se tendrá que elegir una opción, según lo que se quiera hacer:
      - 1- Actualización de datos
      - 2- Visualización de datos
+     - 3- Salir
 
 ```
  ******************************************************
@@ -27,6 +28,7 @@ El objetivo del programa es poder obtener datos de una base de datos de finanzas
     MENU PRINCIPAL:
     1- Actualización de datos
     2- Visualización de datos
+    3- Volver al MENÚ Principal
 
 ¿Cuál opción desea elegir?:
 ```
