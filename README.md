@@ -28,7 +28,7 @@ El objetivo del programa es poder obtener datos de una base de datos de finanzas
     MENU PRINCIPAL:
     1- Actualización de datos
     2- Visualización de datos
-    3- Volver al MENÚ Principal
+    3- Salir
 
 ¿Cuál opción desea elegir?:
 ```
@@ -72,6 +72,7 @@ Si se ingresa `2`, se va a ingresar al menú de **Visualización de datos**:
  VISUALIZACIÓN DE DATOS:
       1- Resumen
       2- Gráfico de ticker
+      3- Volver al MENÚ Principal
 
 ¿Cuál opción desea elegir?:
 ```
