@@ -74,11 +74,7 @@ Si se ingresa `2`, se va a ingresar al menú de **Visualización de datos**:
 ¿Cuál opción desea elegir?:
 ```
 
-Al finalizar cada opción, se va a poder regresar al menú para elegir una nueva opción, ingresando `1`. Se verá lo siguiente:
-
-```
-Si quiere salir ingrese 0, de lo contrario ingrese 1:
-```
+Al finalizar cada opción, se va a poder regresar al menú para elegir una nueva opción.
 
 ## Desarrollo
  
