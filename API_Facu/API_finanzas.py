@@ -10,16 +10,15 @@ import pandas as pd
 import pandas_ta as ta
 import matplotlib.pyplot as plt
 
-#valor para loop
-salir=2
-
+print("""
+******************************************************
+    Te damos la Bienvenida. API de Finanzas
+            Certificación Python ITBA
+******************************************************
+""")
 #iniciamos la interfaz del usuario en loop
-while salir != 0:
+while True:
     print("""
-    ******************************************************
-        Te damos la Bienvenida. API de Finanzas
-                Certificación Python ITBA
-    ******************************************************
     MENU PRINCIPAL:
     1- Actualización de datos
     2- Visualización de datos
@@ -187,11 +186,6 @@ while salir != 0:
             # Cerramos la conexión
             con.close()
 
-            #manejo de menu
-            print("\n ")
-            input1 = input('Si quiere salir entre 0, de lo contrario ingrese 1:')
-            salir = int(input1)
-
     #inicio de la opcion 2
     elif option == "2":
         fin=0
@@ -294,7 +288,7 @@ while salir != 0:
 
 
                         except ValueError:
-                            print('El Ticker no existe en la base de datos. Elija otro\n')
+                            print(f'        ERROR - El Ticker {tickerAGraficar} no existe en la base de datos. Elija otro\n')
 
             #si ingreso 3, vuelvo al menu principal
             elif option1 == "3":
