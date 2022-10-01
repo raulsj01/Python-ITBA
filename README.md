@@ -35,6 +35,7 @@ El objetivo del programa es poder obtener datos de una base de datos de finanzas
 
 Si se ingresa `1`, se va a ingresar al menú de **Actualización de datos**.
 Debe ingresar el nombre del **Ticker** a cargar en la base de datos junto al rango de **fechas** requerido, utilizando el formato `año-mes-día` . Si alguna fecha requerida ya se encuentra cargada en la base de datos, no la cargará nuevamente.
+Si el nombre del ticker no existe o no se tiene información en la base de datos de la API, va a pedir que se ingrese un nuevo Ticker.
 
 Ejemplo:
 ```
@@ -55,6 +56,15 @@ Ingrese fecha de inicio [AAAA-MM-DD]:
 
 Ingrese fecha de fin [AAAA-MM-DD]:
  2022-02-03
+ 
+ ERROR - No tenemos información de ese ticker. Elija otro
+
+ACTUALIZACIÓN DE DATOS.
+
+
+Ingrese ticker a pedir y luego apriete <enter>.
+
+Ticker:
 
 ```
 
