@@ -28,43 +28,83 @@ while True:
     option = input('¿Cuál opción desea elegir?:')
     print("\n ")
     if option == "1":
-    #inicio opcion 1
-            print("ACTUALIZACIÓN DE DATOS.")
-            print("\n ")
-            print("Ingrese ticker a pedir y luego apriete <enter>.\n ")
-            ticker = input('Ticker:')
-            print("\n ")
-            #verificamos que ingresen una fecha correcta
-            while True:
-                try:
-                    f_inicial = input('Ingrese fecha de inicio [AAAA-MM-DD]:\n ')
-                    #llevamos a la fecha inicial a formato datetime
-                    startDate = datetime.strptime(f_inicial, '%Y-%m-%d').date()
-                    break
-                except ValueError:
-                    print("Fecha inválida - Ingresa una fecha válida \n")
-            print("\n ")
-            while True:
-                try:
-                    f_final = input('Ingrese fecha de fin [AAAA-MM-DD]:\n ')
-                    endDate = datetime.strptime(f_final, '%Y-%m-%d').date()
-                    if startDate > endDate:
-                        print(f'Ingrese una fecha mayor a la de inicio: {f_inicial}\n')
-                    else:
+            z=0
+            while z == 0:
+
+            #inicio opcion 1
+                print("ACTUALIZACIÓN DE DATOS.")
+                print("\n ")
+                print("Ingrese ticker a pedir y luego apriete <enter>.\n ")
+                ticker = input('Ticker:')
+                print("\n ")
+                #verificamos que ingresen una fecha correcta
+                while True:
+                    try:
+                        f_inicial = input('Ingrese fecha de inicio [AAAA-MM-DD]:\n ')
+                        #llevamos a la fecha inicial a formato datetime
+                        startDate = datetime.strptime(f_inicial, '%Y-%m-%d').date()
                         break
-                except ValueError:
-                    print("Fecha inválida - Ingresa una fecha válida\n")
-            print("\n ")
-            print("Pidiendo datos ...\n ")
+                    except ValueError:
+                        print("Fecha inválida - Ingresa una fecha válida \n")
+                print("\n ")
+                while True:
+                    try:
+                        f_final = input('Ingrese fecha de fin [AAAA-MM-DD]:\n ')
+                        endDate = datetime.strptime(f_final, '%Y-%m-%d').date()
+                        if startDate > endDate:
+                            print(f'Ingrese una fecha mayor a la de inicio: {f_inicial}\n')
+                        else:
+                            break
+                    except ValueError:
+                        print("Fecha inválida - Ingresa una fecha válida\n")
+                print("\n ")
+                print("Pidiendo datos ...\n ")
+
+                #Creamos la API key con los valores propuestos
+                pedido= ("https://api.polygon.io/v2/aggs/ticker/{t}/range/1/day/{fi}/{ff}?adjusted=true&sort=asc&apiKey=Hl28_xet0aqM7JlJ8rMwSoa7rVqhC_uo"
+                .format(t=ticker,
+                        fi=f_inicial,
+                        ff=f_final,
+                        )
+                        )
+
+                #realizamos el pedido a la pagina de la API
+                json_file = requests.get(pedido)
+
+                #mostramos los resultados
+                # print("Contendio en JSON:\n", json_file.json())
+
+                print(json_file.text)
+
+                json_obj = json_file.json() # Parseo a Diccionario de Python
+
+                z = int(json_obj["queryCount"])
+                if z == 0:
+                    print('\n')
+                    print('ERROR - No tenemos información de ese ticker. Elija otro \n')
+
+            print('Terminó el loop')
+
+            #cargo a una lista el nombre del ticker y los datos de la API
+            ticker = json_obj["ticker"]
+            value = json_obj["results"]
+
+
+            #tomo la parte del timestamp de los resultados de la API, lo tranformo en tipo fecha datetime (esta en milisegundos por eso lo divido por 1000) y lo guardo en la lista "fechas" para compararlo con "datos_cargados2" luego
+            #no comparo el timestamp directamente porque tiene la parte de la hora también y es complejo coincidir en hora. Es mas facil comparar solo dias.
+            fechas = []
+            for k in range(int(json_obj["queryCount"])):
+                fechas_normal = str(datetime.fromtimestamp(value[k]['t']//1000.0).strftime('%Y-%m-%d'))
+                fechas.append(fechas_normal)
+
+            print(f'ESTAS SON LAS FECHAS de API : {fechas}\n')
 
 
 
+            #MANEJO DE BASE DE DATOS
             con = sqlite3.connect('tickers.db')
             # Creamos el cursor para interactuar con los datos
             cursor = con.cursor()
-
-
-
 
             # Pedimos parametros al SQL para ver qué fechas tenemos en la DB del ticker pedido
             res = cursor.execute(f'''
@@ -101,38 +141,6 @@ while True:
                 datos_cargados2.append(data[1])
 
             print(f'ESTAS SON LAS FECHAS DE DB: {datos_cargados2}\n')
-
-
-            #Creamos la API key con los valores propuestos
-            pedido= ("https://api.polygon.io/v2/aggs/ticker/{t}/range/1/day/{fi}/{ff}?adjusted=true&sort=asc&apiKey=Hl28_xet0aqM7JlJ8rMwSoa7rVqhC_uo"
-            .format(t=ticker,
-                    fi=f_inicial,
-                    ff=f_final,
-                    )
-                    )
-
-            #realizamos el pedido a la pagina de la API
-            json_file = requests.get(pedido)
-
-            #mostramos los resultados
-            # print("Contendio en JSON:\n", json_file.json())
-
-            print(json_file.text)
-
-            json_obj = json_file.json() # Parseo a Diccionario de Python
-
-            #cargo a una lista el nombre del ticker y los datos de la API
-            ticker = json_obj["ticker"]
-            value = json_obj["results"]
-
-            #tomo la parte del timestamp de los resultados de la API, lo tranformo en tipo fecha datetime (esta en milisegundos por eso lo divido por 1000) y lo guardo en la lista "fechas" para compararlo con "datos_cargados2" luego
-            #no comparo el timestamp directamente porque tiene la parte de la hora también y es complejo coincidir en hora. Es mas facil comparar solo dias.
-            fechas = []
-            for k in range(int(json_obj["queryCount"])):
-                fechas_normal = str(datetime.fromtimestamp(value[k]['t']//1000.0).strftime('%Y-%m-%d'))
-                fechas.append(fechas_normal)
-
-            print(f'ESTAS SON LAS FECHAS de API : {fechas}\n')
 
 
             # Creamos una conexión con la base de datos
@@ -195,7 +203,7 @@ while True:
  VISUALIZACIÓN DE DATOS:
       1- Resumen
       2- Gráfico de ticker
-      3-  Volver al MENÚ Principal
+      3- Volver al MENÚ Principal
             """)
 
             option1 = input('¿Cuál opción desea elegir?:')
@@ -301,4 +309,4 @@ while True:
     elif option == "3":
         break
     else:
-        print(f'        ERROR - Ingresó {option}. Ingrese la opción 1 o 2')
+        print(f'        ERROR - Ingresó {option}. Ingrese la opción 1, 2 o 3 para salir')
