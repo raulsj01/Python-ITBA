@@ -98,6 +98,3 @@ Para el desarrollo y prueba de la base de datos, se utilizó *[Sqlite3](https://
 - Tickers *(Nombre del ticker, fecha de inicio de los datos, fecha de fin de los datos)*.
 
 En la tabla ***datos*** se guarda la información recibida de la API de finanzas y en la tabla ***tickers*** los requests recibidos del usuario.
-
-
-### Estructura del programa
